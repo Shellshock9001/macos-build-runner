@@ -29,7 +29,6 @@ codesign --force --sign - "$APP"
 codesign --verify --strict "$APP"
 xcrun simctl boot "$DEVICE"
 xcrun simctl bootstatus "$DEVICE" -b
-xcrun simctl status_bar "$DEVICE" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState unplugged --batteryLevel 100
 xcrun simctl install "$DEVICE" "$APP"
 xcrun simctl launch "$DEVICE" org.macosrunner.probe | tee out/launch.txt
 grep -Eq 'org\.macosrunner\.probe: [0-9]+' out/launch.txt
