@@ -1,0 +1,40 @@
+name: macOS runner qualification
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify Apple Silicon and Xcode
+        run: bash scripts/verify-xcode.sh
+      - name: Compile and test Swift package
+        run: |
+          set -o pipefail
+          swift test 2>&1 | tee out/swift-test.log
+      - name: Compile, boot, install and launch native iOS smoke app
+        run: bash scripts/verify-simulator.sh
+      - name: Publish public qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-qualification-evidence
+          path: |
+            out/toolchain.txt
+            out/runtimes.json
+            out/devices.json
+            out/swift-test.log
+            out/xcodebuild.log
+            out/launch.txt
+            out/simulator.png
+            out/result.json
+          if-no-files-found: warn
+          retention-days: 7
